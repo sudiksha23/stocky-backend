@@ -1,0 +1,19 @@
+{
+  "name": "stocky-backend",
+  "version": "1.0.0",
+  "description": "stock incentive earning service",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/app.tsx",
+    "dev": "nodemon src/app.tsx"
+  },
+  "author": "Sudiksha Agrawal",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^24.3.1",
+    "express": "^5.1.0",
+    "mongoose": "^8.18.1",
+    "node-cron": "^4.2.1"
+  }
+}

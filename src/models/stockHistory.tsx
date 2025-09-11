@@ -14,5 +14,7 @@ const stockHistorySchema = mongoose.Schema({
     }
 })
 
+stockHistorySchema.index({ symbol:1 })
+
 const StockHistory = mongoose.model('StockHistory', stockHistorySchema)
 module.exports = StockHistory

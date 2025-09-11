@@ -27,5 +27,7 @@ const rewardSchema = new mongoose.Schema({
     }
 }, { timestamps: true })
 
+rewardSchema.index({ symbol: 1 })
+
 const Reward = mongoose.model('Reward', rewardSchema)
 module.exports = Reward

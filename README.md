@@ -4,7 +4,6 @@ Steps to start server:
 -> npm run dev // for local server start with nodemon
 -> npm start  // for normal start using node
 
-
 ## API Specifications
 
 Base URL: `http://localhost:7777`
@@ -13,22 +12,21 @@ Base URL: `http://localhost:7777`
 - Method: `POST`
 - Path: `/addUser`
 - Request (JSON):
-```
+
 {
-  "firstName": "John",
-  "lastName": "Doe",
-  "email": "john@example.com",
-  "password": "plain-text-for-now"
+    "firstName": "Sachin",
+    "lastName": "Tayal",
+    "email": "sachin@gmail.com",
+    "password": "sachin@123"
 }
-```
+
 - Success Response: `200 OK`
-```
+
 "User created successfully"
-```
+
 - Error Response: `400 Bad Request`
-```
-"Error saving data <message>"
-```
+
+"Error saving data <error message>"
 
 ### Give Reward (grant stock to user)
 - Method: `POST`
@@ -36,22 +34,20 @@ Base URL: `http://localhost:7777`
 - Request (JSON):
 ```
 {
-  "userId": "<userId>",
-  "symbol": "TCS",
-  "quantity": 2.5,
-  "unitPrice": 3100,
-  "currentPrice": 3185.4,
-  "rewardNote": "Great job on Q3"
+    "userId": "68c190af158d61ac5431b632",
+    "symbol": "LALPATHLAB",
+    "quantity":1,
+    "unitPrice": 3259.00,
+    "rewardNote": "Christmas Gift"
 }
-```
+
 - Success Response: `200 OK`
-```
+
 "Reward given successfully"
-```
+
 - Error Response: `400 Bad Request`
-```
-"<validation or persistence error message>"
-```
+
+"<validation error message or some code related error messsage>"
 
 Notes:
 - On success, a corresponding double-entry ledger record is created automatically.
@@ -60,21 +56,37 @@ Notes:
 ### Get Today’s Rewarded Stocks for a User
 - Method: `GET`
 - Path: `/getStocksForToday/:userId`
+  ex. http://localhost:7777/getStocksForToday/68c190af158d61ac5431b632
 - Success Response: `200 OK`
-```
+
 {
   "message": "List of all your stocks rewarded for today:",
   "data": [
     { /* Reward document(s) for today with timestamps */ }
   ]
 }
-```
+ex. {
+    "message": "List of all your stocks rewarded for today:",
+    "data": [
+        {
+            "_id": "68c2abeabedbf770435f49d1",
+            "userId": "68c190af158d61ac5431b632",
+            "symbol": "LALPATHLAB",
+            "quantity": "2",
+            "unitPrice": "3259",
+            "rewardNote": "Diwali Gift",
+            "createdAt": "2025-09-11T11:00:58.289Z",
+            "updatedAt": "2025-09-11T11:00:58.289Z",
+            "__v": 0
+        }
+    ]
+}
 
 ### Get User Stats (today + portfolio value)
 - Method: `GET`
-- Path: `/stats/:userId`
+- Path: `/stats/:userId || example. http://localhost:7777/stats/68c190af158d61ac5431b632
 - Success Response: `200 OK`
-```
+
 {
   "message": "User stats fetched successfully.",
   "data": {
@@ -85,69 +97,65 @@ Notes:
     "CurrentINRPortfolioValue": 123456.78  // computed using a mock price service
   }
 }
-```
+
 
 ### Get Portfolio (grouped, enriched)
-- Method: `GET`
-- Path: `/portfolio/:userId`
-- Success Response: `200 OK`
-```
+- Method: GET
+- Path: /portfolio/:userId || example. http://localhost:7777/portfolio/68c190af158d61ac5431b632
+- Success Response: 200 OK
 {
-  "message": "Hello <FirstName>, Here is you current portfolio",
-  "stocks": [
-    {
-      "name": "John Doe",
-      "email": "john@example.com",
-      "stockSymbol": "TCS",
-      "quantity": 5.5,              // aggregated across rewards
-      "boughtPrice": 3100,          // from last reward iteration during grouping
-      "currentPrice": 3250.12,      // mock current price
-      "currentValue": 17875.66
-    }
-  ]
+    "message": "Hello Naman, Here is you current portfolio",
+    "stocks": [
+        {
+            "name": "Naman Singhal",
+            "email": "naman@gmail.com",
+            "stockSymbol": "PRESTIGE",
+            "quantity": "5",
+            "boughtPrice": "966",
+            "currentPrice": 1074.4608795748522,
+            "currentValue": 5372.304397874261
+        }
+    ]
 }
-```
 
 ### Get User Stock History (yesterday + today)
-- Method: `GET`
-- Path: `/history/:userId`
-- Success Response: `200 OK`
-```
+- Method: GET
+- Path: /history/:userId ||  http://localhost:7777/history/68c190af158d61ac5431b632
+- Success Response: 200 OK
 {
-  "message": "Stock history for <FirstName> upto yesterday",
-  "historyData": [
-    {
-      "name": "John Doe",
-      "email": "john@example.com",
-      "stockSymbol": "TCS",
-      "quantity": 5.5,
-      "boughtPrice": 3100,
-      "stockHistory": [
-        { "date": "<yesterday ISO>", "price": 3175.43 },
-        { "date": "<today ISO>", "price": 3220.11 }
-      ]
-    }
-  ]
+    "message": "Stock history for Naman upto yesterday",
+    "historyData": [
+        {
+            "name": "Naman Singhal",
+            "email": "naman@gmail.com",
+            "stockSymbol": "PRESTIGE",
+            "quantity": "5",
+            "boughtPrice": "966",
+            "stockHistory": [
+                {
+                    "date": "Thu Sep 11 2025 19:00:00 GMT+0530 (India Standard Time)",
+                    "price": "908.8774466312249",
+                    "_id": "68c2ced827de1b3f388d1de2"
+                }
+            ]
+        }
+    ]
 }
-```
 
-
-## Database Schema & Relationships
+Database Schema & Relationships
 
 MongoDB (Mongoose) models:
 
-### `User`
-```
+User
 {
   firstName: String (required, minLength 4, maxLength 20),
   lastName: String (required),
   email: String (required, unique, lowercase, trim),
   password: String (required)
 }
-```
 
-### `Reward`
-```
+Reward
+
 {
   userId: String (ref: "User", required),
   symbol: String (required),
@@ -158,12 +166,10 @@ MongoDB (Mongoose) models:
   createdAt: Date,
   updatedAt: Date
 }
-```
 
-- **Relationship**: `Reward.userId` references a `User` (stored as string and used with `.populate('userId', ...)` in queries).
+- **Relationship**: 'Reward.userId' references a 'User' (stored as string and used with '.populate('userId', ...)' in queries).
 
-### `DoubleEntryLedger`
-```
+DoubleEntryLedger
 {
   rewardId: String (ref: "Reward", required),
   stockSymbol: String (required),
@@ -178,85 +184,63 @@ MongoDB (Mongoose) models:
   createdAt: Date,
   updatedAt: Date
 }
-```
 
-- **Relationship**: `DoubleEntryLedger.rewardId` references a `Reward` created by `/reward`.
+- **Relationship**: 'DoubleEntryLedger.rewardId' references a 'Reward' created by '/reward'.
 
-### `StockHistory`
-```
+StockHistory
+
 {
   symbol: String (required),
   priceHistory: [ { date: Date|String, price: Number|String } ] // default []
 }
-```
 
-- **Relationship**: Independent collection keyed by `symbol`. A document is created on first reward for a new symbol.
+- Relationship: Independent collection keyed by 'symbol'. A document is created on first reward for a new symbol.
 
 
 ## Edge Cases, Validation, and Error Handling
 
 - **User creation**:
-  - Duplicate `email` results in a `400` with a Mongo duplicate key error message.
-  - `firstName` length constraints (4–20) enforced by schema.
-  - No password hashing yet; use only in trusted environments.
-
+  - Duplicate 'email' results in a '400' with a Mongo duplicate key error message.
+  - 'firstName' length constraints (4–20) enforced by schema.
+ 
 - **Reward creation**:
-  - Requires `userId` and `symbol`. Quantity defaults to `1` if omitted.
-  - Types for numeric fields are currently `String || Number`; ensure numeric inputs where appropriate to avoid arithmetic issues.
-  - On success, creates a `DoubleEntryLedger` entry and (if needed) initializes a `StockHistory` record for the `symbol`.
+  - Requires 'userId' and 'symbol'. Quantity defaults to 1 if omitted.
+  - Types for numeric fields are currently 'String || Number'; ensure numeric inputs where appropriate to avoid arithmetic issues.
+  - On success, creates a 'DoubleEntryLedger' entry and (if needed) initializes a 'StockHistory record for the symbol(stock).
 
-- **Date filtering ("today")**:
-  - Uses UTC boundaries (`setUTCHours(0,0,0,0)` to `setUTCHours(23,59,59,999)`). Ensure client expectations align with UTC.
+- Date filtering ("today"):
+  - Uses UTC boundaries (setUTCHours(0,0,0,0) to setUTCHours(23,59,59,999)). Ensure client expectations align with UTC.
 
-- **Missing data**:
-  - `/portfolio` and `/history` assume at least one reward exists; otherwise accessing `portfolioData[0]` would fail. Callers should be prepared for empty results; future improvement: handle empty portfolios gracefully.
+- Missing data :
+  - /portfolio and /history assume at least one reward exists; otherwise accessing portfolioData[0] would fail. Callers should be prepared for empty results; future improvement: handle empty portfolios gracefully.
 
-- **Mock prices**:
-  - Current prices come from a mock service (`src/util/hypotheticStockPriceService.tsx`), not a real market feed.
+-  Mock prices :
+  - Current prices come from a mock service (src/util/hypotheticStockPriceService.tsx), not a real market feed.
 
-- **Error responses**:
-  - Routes return `400` with raw error messages on validation/persistence failures.
+- Error responses**:
+  - Routes return 400 with raw error messages on validation/persistence failures.
 
+Environment & Configuration
 
-## Scaling & Operations
+- Port: '7777'
 
-- **Database**:
-  - Backed by MongoDB Atlas. Connection is established once at startup.
-  - Recommended: move the connection string to an environment variable (e.g., `MONGODB_URI`) and enable IP allowlisting.
-  - Add indexes for frequent queries:
-    - `Reward`: `{ userId: 1, createdAt: -1 }` for time-bounded lookups
-    - `Reward`: `{ userId: 1, symbol: 1 }` for portfolio/history aggregation
-    - `StockHistory`: `{ symbol: 1 }`
+How the system handles edge cases and scaling
 
-- **Application server**:
-  - Stateless Express service; can be horizontally scaled behind a load balancer.
-  - Use a process manager (e.g., PM2) and enable clustering if CPU-bound.
-  - Add request logging, rate limiting, and input validation (e.g., `celebrate`/`Joi` or `zod`) for robustness.
+- Validation and constraints
+    - Mongoose schemas enforce required fields and simple constraints (e.g., user name length, unique email).
+     
+- Error handling
+    - Route-level try/catch; on failure, responds with 400 and the error message (no centralized middleware yet).
 
-- **Background jobs**:
-  - A cron (`node-cron`) runs hourly: `updateStockHistory` pushes a new `{date, price}` for each `symbol` in `StockHistory`.
-  - For scale, move background jobs to a dedicated worker (e.g., BullMQ + Redis) to avoid duplicate executions across replicas.
+- Data integrity side-effects
+    - On reward creation, writes a matching double-entry ledger row and ensures a StockHistory doc exists for the symbol.
 
-- **API evolution**:
-  - Add pagination for list endpoints, especially if rewards grow large.
-  - Define OpenAPI/Swagger docs to standardize and share the contract.
+- Known edge cases and caveats
+    - Numeric fields sometimes typed as String || Number; callers should pass numbers to avoid arithmetic issues.
+    - Portfolio/history endpoints assume at least one reward; empty results can break string-building on portfolioData[0].
+    - “Today” filters use UTC boundaries, so clients should align expectations.
 
-- **Security**:
-  - Store secrets in env vars; do not hardcode credentials.
-  - Add password hashing (e.g., `bcrypt`) and authentication/authorization before production use.
+- Background processing
+    - Hourly cron updates stock history; runs in-process with the web server.
 
-
-## Environment & Configuration
-
-- Port: `7777`
-- Cron: hourly stock history update
-- DB Connection: configure via env var (recommended)
-
-Example `.env` (recommended):
-```
-MONGODB_URI="mongodb+srv://<user>:<pass>@<cluster>/<db>?retryWrites=true&w=majority"
-PORT=7777
-```
-
-And update `src/config/database.tsx` to read from `process.env.MONGODB_URI`.
-
+    
